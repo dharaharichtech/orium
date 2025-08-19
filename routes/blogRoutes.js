@@ -5,7 +5,7 @@ const { createBlog, getAllBlogs, getBlogById, deleteBlog, updateBlog } = require
 const upload = require('../utils/multer');
 const { authenticate } = require('../utils/authValidation');
 
-//create blog routes
+//create blog routes for orium
 router.post("/add-blog", authenticate, upload.single('image'), createBlog);
 
 //update blog routes
