@@ -39,7 +39,7 @@ router.get("/certificate/:id", getProductCertificateById);
 router.post("/cart",authenticate,addToCart)
 router.delete("/cart/:cart_id",authenticate,deleteProductCart)
 router.get("/cart",authenticate,getProductCart)
-router.put("/cart/:cart_id", authenticate, updateProductCart);
+router.patch("/cart/:cart_id", authenticate, updateProductCart);
 
 
 
