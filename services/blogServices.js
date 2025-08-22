@@ -15,9 +15,15 @@
   const getBlogById = async (id)=>{
       return await blogRepo.getBlogById(id);
   }
+  const getBlogByTitle = async (title) => {
+      title: { $regex: new RegExp(`^${req.params.title}$`, "i") } 
+ 
+  return await blogRepo.getBlogByTitle(title);
+};
+
 
   const updateBlog = async (id, updateData) => {
     return await blogRepo.updateBlog(id, updateData);
   }
 
-  module.exports = { serviceCreateBlog, getAllBlog, deleteAllBlog, getBlogById, updateBlog }; 
+  module.exports = {getBlogByTitle, serviceCreateBlog, getAllBlog, deleteAllBlog, getBlogById, updateBlog }; 

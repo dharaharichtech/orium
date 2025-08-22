@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { createBlog, getAllBlogs, getBlogById, deleteBlog, updateBlog } = require('../controller/blogController');
+const { createBlog, getAllBlogs, getBlogById, deleteBlog, updateBlog, getBlogByTitle, getBlogBySlug } = require('../controller/blogController');
 const upload = require('../utils/multer');
 const { authenticate } = require('../utils/authValidation');
 
@@ -18,6 +18,10 @@ router.delete("/delete/:id", authenticate, deleteBlog);
 router.route("/all-blogs").get(getAllBlogs);
 
 //get blog by id 
-router.route("/all-blogs/:id").get(getBlogById);    
+router.route("/all-blogs/:id").get(getBlogById);  
+
+//get blog by title
+router.route("/all-blogs/title/:title").get(getBlogByTitle);
+
 
 module.exports = router;

@@ -11,6 +11,9 @@ const getAllBlog = async()=> {
 const getBlogById = async (id)=>{
     return await Blog.findById(id);
 }
+const getBlogByTitle = async (title)=>{
+    return await Blog.findOne({ title });
+}
 
 const updateBlog = async (id, updateData) => {
   return await Blog.findByIdAndUpdate(id, updateData, { new: true });
@@ -20,6 +23,6 @@ const deleteAllBlog = async()=> {
   return await Blog.deleteMany({})
 }
 
-module.exports = { saveBlog, getAllBlog, getBlogById, updateBlog, deleteAllBlog}
+module.exports = { getBlogByTitle,saveBlog, getAllBlog, getBlogById, updateBlog, deleteAllBlog}
 
 

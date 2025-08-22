@@ -1,5 +1,5 @@
 const  userRepository  = require("../repositories/userRepository");
-
+const bcrypt = require("bcryptjs");
  const serviceCreateUser = async (userData) => {
   return await userRepository.saveUserRepo(userData);
 };

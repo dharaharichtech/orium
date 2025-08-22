@@ -83,6 +83,29 @@ const getBlogById = async (req, res) => {
   }
 };
 
+
+const getBlogByTitle = async (req, res) => {
+  try {
+    const title = req.params.title;
+
+    const blog = await Blog.findOne({
+      title: { $regex: new RegExp(`^${title}$`, "i") }
+    });
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    res.json(blog);
+  } catch (error) {
+    console.error("Error fetching blog by title:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+
 const deleteBlog = async (req, res) => {
   try {
     const { id } = req.params;
@@ -140,4 +163,4 @@ const updateBlog = async (req, res) => {
 };
 
 
-module.exports = { createBlog, getAllBlogs, getBlogById, deleteBlog, updateBlog };
+module.exports = {getBlogByTitle, createBlog, getAllBlogs, getBlogById, deleteBlog, updateBlog };
