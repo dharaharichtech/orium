@@ -291,8 +291,64 @@ const updateUser = async (req, res) => {
     res.status(500).json({ msg: "Internal Server Error" });
   }
 };
+const contactUs = async (req, res) => {
+  try {
+    const { name, email, message, phone } = req.body;
+
+    if (!name?.trim() || !email?.trim() || !phone?.trim() || !message?.trim()) {
+      return res.status(400).json({ msg: "Please fill all the fields" });
+    }
+
+    const userMailResponse = await sendEmail({
+      from: process.env.EMAIL,
+      to: email,
+      subject: `Thank you for contacting Harich Tech - ${name}`,
+      text: `Hi ${name},\n\nThank you for contacting Harich Tech. We will get back to you soon!\n\nYour details:\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${message}`,
+      html: `
+        <p>Hi <b>${name}</b>,</p>
+        <p>Thank you for contacting <b>Harich Tech</b>. We will get back to you soon!</p>
+        <br/>
+        <h4>Your Details:</h4>
+        <p><b>Name:</b> ${name}</p>
+        <p><b>Email:</b> ${email}</p>
+        <p><b>Phone:</b> ${phone}</p>
+        <p><b>Message:</b> ${message}</p>
+      `,
+    });
+
+    if (!userMailResponse.success) {
+      return res.status(500).json({ msg: "Failed to send thank you email", error: userMailResponse.error });
+    }
+
+    const adminMailResponse = await sendEmail({
+      from: process.env.EMAIL,
+      to: process.env.EMAIL, 
+      subject: `New Contact Form Submission - ${name}`,
+      text: `New message received:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${message}`,
+      html: `
+        <h3>New Contact Form Submission</h3>
+        <p><b>Name:</b> ${name}</p>
+        <p><b>Email:</b> ${email}</p>
+        <p><b>Phone:</b> ${phone}</p>
+        <p><b>Message:</b> ${message}</p>
+      `,
+    });
+
+    if (!adminMailResponse.success) {
+      return res.status(500).json({ msg: "Failed to send admin email", error: adminMailResponse.error });
+    }
+
+    res.status(200).json({ msg: "Contact message sent successfully" });
+
+  } catch (error) {
+    console.error("Error in contactUs:", error);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
+};
+
 
 module.exports = {
+  contactUs,
   register,
   login,
   mailSend,

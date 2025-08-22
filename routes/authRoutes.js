@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {register, login, mailSend, verifyOtp, resetPassword, getAllUsers, getUserById, updateUser, verifyEmail} = require("../controller/authController")
+const {register, login, mailSend, verifyOtp, resetPassword, getAllUsers, getUserById, updateUser, verifyEmail, contactUs} = require("../controller/authController")
 const upload = require('../utils/multer');
 
 //user register routes
@@ -30,4 +30,5 @@ router.get("/allusers/:id",getUserById);
 //update user routes
 router.patch("/update/:id",updateUser);
 
+router.post("/contact-us", contactUs);
 module.exports = router;
