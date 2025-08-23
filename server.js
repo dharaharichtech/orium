@@ -3,6 +3,7 @@ const connectDB = require('./db/db');
 const authRouter = require("./routes/authRoutes");
 const blogRouter = require("./routes/blogRoutes");
 const productRouter = require("./routes/productRoutes");
+const reviewRouter = require("./routes/reviewsRoutes")
 const app = express();
 const PORT = process.env.PORT || 5000;
 const path = require('path');
@@ -23,6 +24,7 @@ app.get('/', (req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/blog", blogRouter);
 app.use("/api/product",productRouter);
+app.use("/api/review", reviewRouter);
 
 
 
