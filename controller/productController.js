@@ -121,11 +121,48 @@ const deleteProductDetails = async (req, res) => {
   }
 };
 
+const addWishlist = async(req,res)=>{
+  try {
+    const { user_id, product_id } = req.body;
+    const wishlistItem = await productService.addWishlist(user_id, product_id);
+    res.status(201).json({
+      message: "Product added to wishlist successfully",
+      item: wishlistItem
+    });
+  } catch (error) {
+    console.error("Error in addWishlist:", error);
+    res.status(400).json({ msg: error.message });
+  }
+};
 
+const toggleWishlist = async (req, res) => {
+  try {
+    const { product_id } = req.params;
+    const user_id = req.user.userId;
 
+    const result = await productService.toggleWishlist(user_id, product_id);
+
+   res.status(200).json(result);
+  } catch (error) {
+    console.error("Error in toggleWishlist:", error);
+    res.status(400).json({ msg: error.message });
+  }
+};
+
+const getWishlist = async (req, res) => {
+  try {
+    const user_id = req.user.userId;
+    const wishlist = await productService.getWishlist(user_id);
+    res.status(200).json(wishlist);
+  } catch (error) {
+    console.error("Error in getWishlist:", error);
+    res.status(400).json({ msg: error.message });
+  }
+};
 
 module.exports = {
-  
+  getWishlist,
+  toggleWishlist,
   createProduct,
   getAllProducts,
   getProductById,

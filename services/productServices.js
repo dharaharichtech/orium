@@ -332,6 +332,47 @@ const updateProductCart = async (cart_id, user_id, quantity, subtotal) => {
   return { updatedCartItem, remainingStock: product.stock };
 };
 
+const toggleWishlist = async(user_id,product_id)=>{
+  if (!user_id || !product_id) {
+    throw new Error("User ID and Product ID are required");
+  }
+
+  const existingItem = await productRepository.findWishlistItem(user_id, product_id);
+
+  if (existingItem) {
+    await productRepository.removeWishlistItem(user_id, product_id);
+    return { message: "Product removed from wishlist" };
+  } else {
+    const newItem = await productRepository.addWishlistItem(user_id, product_id);
+    return { message: "Product added to wishlist", item: newItem };
+  }
+};
+
+const getWishlist = async (user_id) => {
+  if (!user_id) throw new Error("User ID is required");
+
+  const wishlistItems = await productRepository.findWishlistItemsByUser(user_id);
+
+  const formattedWishlist = wishlistItems.map((item) => {
+    const product = item.product_id;
+    if (!product) return null;
+
+    return {
+      _id: item._id,
+      user_id: item.user_id,
+      product: {
+        _id: product._id,
+        title: product.title,
+        price: product.price,
+        image: product.images && product.images.length > 0 ? product.images[0] : null,
+      },
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+    };
+  }).filter(item => item !== null);
+
+  return formattedWishlist;
+};
 
 
-module.exports = {deleteProductCertificate,getProductCertificateById,getAllProductCertificate,deleteProductDetails,getProductById, deleteProductById, getAllProducts, createProduct ,updateProduct,addProductDetails,updateProductDetails,addProductCertificate,updateProductCertificate,getProductCart,deleteProductCart,addToCart,updateProductCart}
+module.exports = {getWishlist,toggleWishlist,deleteProductCertificate,getProductCertificateById,getAllProductCertificate,deleteProductDetails,getProductById, deleteProductById, getAllProducts, createProduct ,updateProduct,addProductDetails,updateProductDetails,addProductCertificate,updateProductCertificate,getProductCart,deleteProductCart,addToCart,updateProductCart}

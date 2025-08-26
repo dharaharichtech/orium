@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../utils/multer");
-const { createProduct, getAllProducts, getProductById, deleteProduct, updateProduct, addProductDetails, updateProductDetails, deleteProductDetails, } = require("../controller/productController");
+const { createProduct, getAllProducts, getProductById, deleteProduct, updateProduct, addProductDetails, updateProductDetails, deleteProductDetails, toggleWishlist, getWishlist, } = require("../controller/productController");
 const { authenticate } = require("../utils/authValidation");
 const { addToCart, deleteProductCart, getProductCart, updateProductCart } = require("../controller/cartController");
 const { addProductCertificate, updateProductCertificate, deleteProductCertificate, getAllProductCertificate, getProductCertificateById } = require("../controller/productCertificateController");
@@ -41,6 +41,8 @@ router.delete("/cart/:cart_id",authenticate,deleteProductCart)
 router.get("/cart",authenticate,getProductCart)
 router.patch("/cart/:cart_id", authenticate, updateProductCart);
 
-
+//wishlist routes
+router.post("/wishlist/:product_id", authenticate, toggleWishlist);
+router.get("/wishlist/:id", authenticate, getWishlist);
 
 module.exports = router;

@@ -2,6 +2,7 @@ const Product = require("../model/productSchema");
 const ProductDetail = require("../model/productDetailSchema");
 const ProductCertificate = require("../model/productCertificateSchema");
 const ProductCart = require("../model/productCartSchema");
+const Wishlist = require("../model/wishlistSchema");
 
 const saveProduct = async (productData) => {
   const product = new Product(productData);
@@ -102,9 +103,31 @@ const updateCartItemById = async (cart_id, updateData) => {
   return await ProductCart.findByIdAndUpdate(cart_id, updateData, { new: true });
 };
 
+const findWishlistItem = async (user_id, product_id) => {
+  return await Wishlist.findOne({ user_id, product_id });
+};
 
+const addWishlistItem = async (user_id, product_id) => {
+  const wishlistItem = new Wishlist({ user_id, product_id });
+  return await wishlistItem.save();
+};
+
+const removeWishlistItem = async (user_id, product_id) => {
+  return await Wishlist.findOneAndDelete({ user_id, product_id });
+};
+
+const findWishlistItemsByUser = async (user_id) => {
+  return await Wishlist.find({ user_id }).populate(
+    "product_id",
+    "title price images"
+  );
+};
 
 module.exports = {
+  findWishlistItemsByUser,
+  removeWishlistItem,
+  findWishlistItem,
+  addWishlistItem,
   updateCartItemById,
   deleteCartItemById,
   getCartItemById,
