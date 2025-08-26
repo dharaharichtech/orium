@@ -43,6 +43,6 @@ router.patch("/cart/:cart_id", authenticate, updateProductCart);
 
 //wishlist routes
 router.post("/wishlist/:product_id", authenticate, toggleWishlist);
-router.get("/wishlist/:id", authenticate, getWishlist);
+router.get("/wishlist", authenticate, getWishlist);
 
 module.exports = router;
