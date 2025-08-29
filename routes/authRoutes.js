@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {register, login, mailSend, verifyOtp, resetPassword, getAllUsers, getUserById, updateUser, verifyEmail, contactUs} = require("../controller/authController")
 const upload = require('../utils/multer');
+const passport = require('passport');
 
 //user register routes
 router.post("/register", upload.single("profile"), register);
@@ -31,4 +32,29 @@ router.get("/allusers/:id",getUserById);
 router.patch("/update/:id",updateUser);
 
 router.post("/contact-us", contactUs);
+
+
+/////// google 
+ router.get("/google",passport.authenticate("google",{scope:["profile","email"]}))
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  (req, res) => {
+  
+    const jwt = require("jsonwebtoken");
+    const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET, {
+      expiresIn: "9h",
+    });
+
+   
+    res.json({
+      msg: "Google login successful",
+      token,
+      user: req.user,
+    });
+  }
+);
+
+
 module.exports = router;

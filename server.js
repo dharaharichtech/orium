@@ -6,6 +6,8 @@ const productRouter = require("./routes/productRoutes");
 const reviewRouter = require("./routes/reviewsRoutes")
 const app = express();
 const PORT = process.env.PORT || 5000;
+const passport = require("passport"); 
+const session = require("express-session");
 const path = require('path');
 const cors = require('cors');
 
@@ -14,6 +16,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); 
+
+app.use(
+  session({
+    secret: process.env.JWT_SECRET || "secret_key", 
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+require("./utils/passport")(passport);
 
 connectDB();
 

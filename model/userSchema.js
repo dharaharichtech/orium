@@ -65,13 +65,15 @@ const userSchema = new Schema({
 
    user_role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "admin","superadmin"],
       default: "user",
    },
 
    profile:{
     type:String,
-   }
+   },
+     provider:  { type: String, enum: ["local", "google", "facebook"], default: "local" },
+  facebookId:{ type: String, index: true }
 
 });
 
