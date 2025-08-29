@@ -3,7 +3,7 @@ const router = express.Router();
 const upload = require("../utils/multer");
 const { createProduct, getAllProducts, getProductById, deleteProduct, updateProduct, addProductDetails, updateProductDetails, deleteProductDetails, toggleWishlist, getWishlist, } = require("../controller/productController");
 const { authenticate } = require("../utils/authValidation");
-const { addToCart, deleteProductCart, getProductCart, updateProductCart } = require("../controller/cartController");
+const { addToCart, deleteProductCart, getProductCart, updateProductCart, checkout, getOrdersController, getOrderController, getAllOrdersController } = require("../controller/cartController");
 const { addProductCertificate, updateProductCertificate, deleteProductCertificate, getAllProductCertificate, getProductCertificateById } = require("../controller/productCertificateController");
 
 router.post("/create", authenticate,upload.array("images", 5), createProduct);
@@ -44,5 +44,20 @@ router.patch("/cart/:cart_id", authenticate, updateProductCart);
 //wishlist routes
 router.post("/wishlist/:product_id", authenticate, toggleWishlist);
 router.get("/wishlist", authenticate, getWishlist);
+
+
+//order routes
+
+router.post("/checkout", authenticate, checkout);
+
+//user's order 
+router.get("/my-orders", authenticate, getOrdersController); 
+
+//order by id
+router.get("/orders/:id", authenticate, getOrderController);
+
+//all orders
+router.get("/orders", getAllOrdersController);
+
 
 module.exports = router;

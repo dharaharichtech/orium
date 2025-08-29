@@ -3,6 +3,7 @@ const ProductDetail = require("../model/productDetailSchema");
 const ProductCertificate = require("../model/productCertificateSchema");
 const ProductCart = require("../model/productCartSchema");
 const Wishlist = require("../model/wishlistSchema");
+const Order = require("../model/orderSchema");
 
 const saveProduct = async (productData) => {
   const product = new Product(productData);
@@ -123,8 +124,33 @@ const findWishlistItemsByUser = async (user_id) => {
   );
 };
 
+///// orders 
+
+const saveOrder = async (orderData) => {
+  const order = new Order(orderData);
+  return await order.save();
+};
+
+const getOrderById = async (id)=>{
+  return await Order.findById(id).populate("product_id", "title price images");
+}
+
+const getOrderByUser = async (user_id) => {
+  return await Order.find({ user_id }).populate("product_id", "title price images");
+};
+
+const getAllOrders = async () => {
+  return await Order.find()
+    .populate("user_id", "firstname lastname email")
+    .populate("product_id", "title price images");
+};
+
 module.exports = {
+  getAllOrders,
+  getOrderByUser,
+  saveOrder,
   findWishlistItemsByUser,
+  getOrderById,
   removeWishlistItem,
   findWishlistItem,
   addWishlistItem,

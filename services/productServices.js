@@ -2,6 +2,7 @@ const  productRepository  = require("../repositories/productRepository");
 const ProductDetail = require("../model/productDetailSchema");
 const ProductCertificate = require("../model/productCertificateSchema");
 const api_url = process.env.API_URL
+const crypto = require("crypto");
 
 
  const createProduct = async (data,files) => {
@@ -332,6 +333,8 @@ const updateProductCart = async (cart_id, user_id, quantity, subtotal) => {
   return { updatedCartItem, remainingStock: product.stock };
 };
 
+
+//wishlist 
 const toggleWishlist = async(user_id,product_id)=>{
   if (!user_id || !product_id) {
     throw new Error("User ID and Product ID are required");
@@ -374,5 +377,59 @@ const getWishlist = async (user_id) => {
   return formattedWishlist;
 };
 
+//order
+const checkout = async (user_id, { product_id, quantity, amount, paymentInfo }) => {
+  if (!product_id || !quantity || !amount) {
+    throw new Error("Product ID, quantity, and amount are required");
+  }
 
-module.exports = {getWishlist,toggleWishlist,deleteProductCertificate,getProductCertificateById,getAllProductCertificate,deleteProductDetails,getProductById, deleteProductById, getAllProducts, createProduct ,updateProduct,addProductDetails,updateProductDetails,addProductCertificate,updateProductCertificate,getProductCart,deleteProductCart,addToCart,updateProductCart}
+  const product = await productRepository.getProductById(product_id);
+  if (!product) throw new Error("Product not found");
+
+  const qty = parseInt(quantity, 10);
+  if (isNaN(qty) || qty <= 0) throw new Error("Invalid quantity");
+
+  if (product.stock < qty) throw new Error("Not enough stock available");
+
+  // Deduct stock
+  product.stock -= qty;
+  await product.save();
+
+  
+  const orderId = `ORD-${crypto.randomBytes(6).toString("hex").toUpperCase()}`;
+
+  const orderData = {
+    orderId,
+    user_id,
+    product_id,
+    quantity: qty,
+    amount,
+    paymentInfo,
+    status: "paid", 
+  };
+
+  const order = await productRepository.saveOrder(orderData);
+  return order;
+};
+
+
+const getUserOrders = async (user_id)=>{
+  return await productRepository.getOrderByUser(user_id);
+}
+
+const getOrder = async (id) => {
+  const order = await productRepository.getOrderById(id);
+  if (!order) throw new Error("Order not found");
+  return order;
+};
+
+
+const getAllOrders = async () => {
+  const orders = await productRepository.getAllOrders();
+  if (!orders || orders.length === 0) {
+    throw new Error("No orders found");
+  }
+  return orders;
+};
+
+module.exports = {getAllOrders,getUserOrders,getOrder,checkout,getWishlist,toggleWishlist,deleteProductCertificate,getProductCertificateById,getAllProductCertificate,deleteProductDetails,getProductById, deleteProductById, getAllProducts, createProduct ,updateProduct,addProductDetails,updateProductDetails,addProductCertificate,updateProductCertificate,getProductCart,deleteProductCart,addToCart,updateProductCart}

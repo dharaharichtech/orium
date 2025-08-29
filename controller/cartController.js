@@ -78,7 +78,70 @@ const getProductCart = async (req, res) => {
   }
 };
 
+
+
+//for checkout 
+
+const checkout = async (req, res) => {
+  try {
+    const user_id = req.user.userId; 
+    const { product_id, quantity, amount, paymentInfo } = req.body;
+
+    const order = await productService.checkout(user_id, {
+      product_id,
+      quantity,
+      amount,
+      paymentInfo,
+    });
+
+    res.status(201).json({
+      msg: "Checkout successful",
+      order,
+    });
+  } catch (error) {
+    console.error("Error in checkout:", error);
+    res.status(400).json({ msg: error.message });
+  }
+};
+
+
+
+// user's orders
+const getOrdersController = async (req, res) => {
+  try {
+    const user_id = req.user.userId;
+    const orders = await productService.getUserOrders(user_id);
+    res.json(orders);
+  } catch (error) {
+    res.status(400).json({ msg: error.message });
+  }
+};
+
+
+//order by id
+const getOrderController = async (req, res) => {
+  try {
+    const order = await productService.getOrder(req.params.id);
+    res.json(order);
+  } catch (error) {
+    res.status(400).json({ msg: error.message });
+  }
+};const getAllOrdersController = async (req, res) => {
+  try {
+    const orders = await productService.getAllOrders();
+    res.json(orders);
+  } catch (error) {
+    res.status(400).json({ msg: error.message });
+  }
+};
+
+
+
 module.exports = {
+  getAllOrdersController,
+  getOrderController,
+  getOrdersController,
+  checkout,
   addToCart,
   updateProductCart,
   deleteProductCart,
