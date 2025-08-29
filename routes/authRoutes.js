@@ -57,4 +57,22 @@ router.get(
 );
 
 
+
+/////// facebook 
+router.get("/facebook", passport.authenticate("facebook", { scope: ["email"] }));
+
+router.get(
+  "/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "/login" }),
+  (req, res) => {
+    const jwt = require("jsonwebtoken");
+    const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET, {
+      expiresIn: "9h",
+    });
+
+    res.redirect(`http://localhost:3000?token=${token}`);
+  }
+);
+
+
 module.exports = router;
