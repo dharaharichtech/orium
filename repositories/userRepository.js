@@ -56,6 +56,12 @@ const saveUser = (user) => {
   return user.save();
 };
 
-module.exports = {findByPhone,saveUserRepo, getAllUser,getUserById, deleteAllUser , getUserByEmail,getUserByPhone,saveUser,updateById,createUser,findAllExcludingPasswords, findByIdExcludingPasswords,findById,findByEmail}; 
+const getLastUser = async () => {
+  return await User.findOne({ user_role: "user" }) 
+    .sort({ uid: -1 })
+    .lean();
+};
+
+module.exports = {getLastUser,findByPhone,saveUserRepo, getAllUser,getUserById, deleteAllUser , getUserByEmail,getUserByPhone,saveUser,updateById,createUser,findAllExcludingPasswords, findByIdExcludingPasswords,findById,findByEmail}; 
 
 

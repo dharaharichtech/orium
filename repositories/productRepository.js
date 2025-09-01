@@ -18,6 +18,9 @@ const getProductById = async (id) => {
   return await Product.findById(id);
 };
 
+
+
+
 const getProductByTitle = async (title) => {
   return await Product.findOne({ title });
 };
@@ -86,6 +89,10 @@ const getAllCertificates = async () => {
 const saveCartItem = async (cartData) => {
   const cartItem = new ProductCart(cartData);
   return await cartItem.save();
+};
+
+const getCartItemByUserAndProduct = async (user_id, product_id) => {
+  return await ProductCart.findOne({ user_id, product_id });
 };
 
 const getCartItemsByUser = async (user_id) => {
@@ -175,4 +182,5 @@ module.exports = {
   getAllProducts,
   saveProduct,
   saveProductDetail,
+  getCartItemByUserAndProduct
 };

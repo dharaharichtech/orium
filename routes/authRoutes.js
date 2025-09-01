@@ -35,44 +35,55 @@ router.post("/contact-us", contactUs);
 
 
 /////// google 
+
+
  router.get("/google",passport.authenticate("google",{scope:["profile","email"]}))
+
+// router.get(
+//   "/google/callback",
+//   passport.authenticate("google", { failureRedirect: "/signin" }),
+//   (req, res) => {
+//     const jwt = require("jsonwebtoken");
+//     const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET, {
+//       expiresIn: "9h",
+//     });
+
+//     // res.redirect(`${process.env.PUBLIC_URL}/signin?token=${token}`);
+//     res.redirect(`${process.env.PUBLIC_URL}/auth-success?token=${token}`);
+//   }
+// );
 
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
+  passport.authenticate("google", { failureRedirect: "/signin" }),
   (req, res) => {
-  
     const jwt = require("jsonwebtoken");
-    const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET, {
-      expiresIn: "9h",
-    });
-
-   
-    res.json({
-      msg: "Google login successful",
-      token,
-      user: req.user,
-    });
+    const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET, { expiresIn: "9h" });
+    res.redirect(`${process.env.PUBLIC_URL}/auth-success?token=${token}`);
   }
 );
 
 
 
-/////// facebook 
-router.get("/facebook", passport.authenticate("facebook", { scope: ["email"] }));
+
+
+router.get("/facebook", passport.authenticate("facebook", { scope: [] }));
+
+
 
 router.get(
   "/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: "/login" }),
+  passport.authenticate("facebook", { failureRedirect: "/signin" }),
   (req, res) => {
     const jwt = require("jsonwebtoken");
     const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET, {
       expiresIn: "9h",
     });
 
-    res.redirect(`http://localhost:3000?token=${token}`);
+    res.redirect(`${process.env.PUBLIC_URL}/auth-success?token=${token}`);
   }
 );
+
 
 
 module.exports = router;

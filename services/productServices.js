@@ -249,6 +249,15 @@ const addToCart = async (user_id, product_id, quantity, subtotal) => {
     throw new Error("Invalid quantity");
   }
 
+    const existingCartItem = await productRepository.getCartItemByUserAndProduct(
+    user_id,
+    product_id
+  );
+
+  if (existingCartItem) {
+    throw new Error("Product already in cart");
+  }
+
   if (product.stock < qty) {
     throw new Error("Not enough stock available");
   }

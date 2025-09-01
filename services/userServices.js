@@ -1,6 +1,20 @@
 const  userRepository  = require("../repositories/userRepository");
 const bcrypt = require("bcryptjs");
+
+
  const serviceCreateUser = async (userData) => {
+  // return await userRepository.saveUserRepo(userData);
+  if (userData.user_role === "user") {
+    const lastUser = await userRepository.getLastUser();
+
+    let newIdNumber = 1;
+    if (lastUser && lastUser.uid) {
+      newIdNumber = parseInt(lastUser.uid) + 1;
+    }
+
+    userData.uid = newIdNumber.toString().padStart(2, "0");
+  }
+
   return await userRepository.saveUserRepo(userData);
 };
 

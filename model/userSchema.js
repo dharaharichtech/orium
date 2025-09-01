@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
+    uid: {
+    type: String,
+    unique: true,
+  },
   firstname: {
     type: String,
     required: true,
