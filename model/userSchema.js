@@ -72,6 +72,8 @@ const userSchema = new Schema({
       enum: ["user", "admin","superadmin"],
       default: "user",
    },
+     isBlocked: { type: Number, default: 1 }, // 1 = active, 0 = blocked/deleted
+  deleted_at: { type: Date, default: null },
 
    profile:{
     type:String,

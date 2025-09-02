@@ -62,6 +62,24 @@ const getLastUser = async () => {
     .lean();
 };
 
-module.exports = {getLastUser,findByPhone,saveUserRepo, getAllUser,getUserById, deleteAllUser , getUserByEmail,getUserByPhone,saveUser,updateById,createUser,findAllExcludingPasswords, findByIdExcludingPasswords,findById,findByEmail}; 
+const softDeleteUser = async (id) => {
+  try {
+    const deletedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        isBlocked: 0,
+        deleted_at: new Date()
+      },
+      { new: true }
+    );
+
+    return deletedUser;
+  } catch (error) {
+    console.error("Error in softDeleteUser:", error);
+    throw error;
+  }
+};
+
+module.exports = {softDeleteUser,getLastUser,findByPhone,saveUserRepo, getAllUser,getUserById, deleteAllUser , getUserByEmail,getUserByPhone,saveUser,updateById,createUser,findAllExcludingPasswords, findByIdExcludingPasswords,findById,findByEmail}; 
 
 

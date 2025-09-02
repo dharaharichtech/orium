@@ -117,7 +117,7 @@ const register = async (req, res) => {
                   text-decoration: none; border-radius: 5px; display: inline-block;">
            Verify Email
         </a>
-        <p>This link will expire in 24 hours.</p>
+        <p>This link will expire in 15 minutes.</p>
       </div>
     `;
 
@@ -346,8 +346,59 @@ const contactUs = async (req, res) => {
   }
 };
 
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await userService.softDeleteUserById(id);
+    if (!result.success) {
+      return res.status(400).json({ msg: result.message });
+    }
+
+    res.status(200).json({ msg: "User blocked successfully" });
+  } catch (error) {
+    console.error("Error in deleteUser:", error);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
+};
+
+const verifyToken = (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ msg: "No token provided" });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ msg: "Token expired or invalid" });
+      }
+
+      // Convert Unix timestamps to readable dates
+      const issuedAt = new Date(decoded.iat * 1000).toISOString();
+      const expiresAt = new Date(decoded.exp * 1000).toISOString();
+
+      res.status(200).json({
+        msg: "Token is valid",
+        user: {
+          userId: decoded.userId,
+          iat: decoded.iat,
+          exp: decoded.exp,
+          issuedAt,  // human-readable format
+          expiresAt, // human-readable format
+        },
+      });
+    });
+  } catch (error) {
+    console.error("Error verifying token:", error);
+    res.status(500).json({ msg: "Internal server error" });
+  }
+};
+
 
 module.exports = {
+  verifyToken,
+  deleteUser,
   contactUs,
   register,
   login,

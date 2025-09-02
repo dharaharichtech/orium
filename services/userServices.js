@@ -164,7 +164,22 @@ const updateUserDetails = async (id, updates) => {
   return { success: true, user };
 };
 
+const softDeleteUserById = async (id) => {
+  try {
+    const updatedUser = await userRepository.softDeleteUser(id);
 
-module.exports = { serviceCreateUser, getAllUser, deleteAllUser ,getUserByEmail,getUserByPhone,  updateUserById,getUserByEmail,
+    if (!updatedUser) {
+      return { success: false, message: "User not found" };
+    }
+
+    return { success: true, data: updatedUser };
+  } catch (error) {
+    console.error("Error in softDeleteUserById:", error);
+    return { success: false, message: "Something went wrong" };
+  }
+};
+
+
+module.exports = {softDeleteUserById, serviceCreateUser, getAllUser, deleteAllUser ,getUserByEmail,getUserByPhone,  updateUserById,getUserByEmail,
   getAllUsersExcludingPasswords,getUserByIdExcludingPasswords,generateOtpAndSendEmail,verifyUserOtp,resetUserPassword,
   updateUserDetails,findByEmailOrPhone }; 

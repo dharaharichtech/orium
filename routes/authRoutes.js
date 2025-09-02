@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const {register, login, mailSend, verifyOtp, resetPassword, getAllUsers, getUserById, updateUser, verifyEmail, contactUs} = require("../controller/authController")
+const {register, login, mailSend, verifyOtp, resetPassword, getAllUsers, getUserById, updateUser, verifyEmail, contactUs, deleteUser, verifyToken} = require("../controller/authController")
 const upload = require('../utils/multer');
 const passport = require('passport');
+const { authenticate } = require('../utils/authValidation');
 
 //user register routes
 router.post("/register", upload.single("profile"), register);
@@ -33,6 +34,9 @@ router.patch("/update/:id",updateUser);
 
 router.post("/contact-us", contactUs);
 
+router.delete("/delete/:id", authenticate, deleteUser);
+
+router.get("/verify-token",  verifyToken);
 
 /////// google 
 
