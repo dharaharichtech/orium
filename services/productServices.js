@@ -5,6 +5,7 @@ const api_url = process.env.API_URL
 const crypto = require("crypto");
 
 
+
  const createProduct = async (data,files) => {
 //   return await productRepository.saveProduct(userData);
 const{title,price,description,stock}=data;
@@ -23,7 +24,17 @@ const{title,price,description,stock}=data;
       url: `${api_url}/uploads/${file.filename}`,
     }));
 
-    return await productRepository.saveProduct({ title, price, description, stock, images });
+    const lastProduct = await productRepository.getLastProduct();
+  let nextNumber = 1;
+
+  if (lastProduct && lastProduct.pro_id) {
+    const lastNumber = parseInt(lastProduct.pro_id.split("-")[1]);
+    nextNumber = lastNumber + 1;
+  }
+
+  const pro_id = `PRO-${String(nextNumber).padStart(2, "0")}`;
+
+    return await productRepository.saveProduct({ pro_id, title, price, description, stock, images });
   }
 const getAllProducts = async () => {
   const products = await productRepository.getAllProducts();

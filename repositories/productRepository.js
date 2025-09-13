@@ -19,6 +19,9 @@ const getProductById = async (id) => {
 };
 
 
+const getLastProduct = async () => {
+  return await Product.findOne().sort({ date: -1 }); 
+};
 
 
 const getProductByTitle = async (title) => {
@@ -148,11 +151,12 @@ const getOrderByUser = async (user_id) => {
 
 const getAllOrders = async () => {
   return await Order.find()
-    .populate("user_id", "firstname lastname email")
+    .populate("user_id", "firstname lastname email phone address city country pincode state ")
     .populate("product_id", "title price images");
 };
 
 module.exports = {
+  getLastProduct,
   getAllOrders,
   getOrderByUser,
   saveOrder,
