@@ -21,7 +21,6 @@ const register = async (req, res) => {
       pincode,
       address,
       user_role,
-      
     } = req.body;
 
     // Required fields check
@@ -80,8 +79,6 @@ const register = async (req, res) => {
       hash_password = await bcrypt.hash(password, 10);
     }
 
-    
-
     const userData = {
       firstname,
       lastname,
@@ -94,20 +91,21 @@ const register = async (req, res) => {
       city,
       pincode,
       address,
-      user_role:user_role || "user",
-      profile:profilePic,
+      user_role: user_role || "user",
+      profile: profilePic,
       isVerified: false, // default false
     };
 
     const userCreated = await userService.serviceCreateUser(userData);
 
-    const token = jwt.sign({userId: userCreated._id},
-        process.env.JWT_SECRET,
-        { expiresIn: "1h" }
-    )
+    const token = jwt.sign(
+      { userId: userCreated._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
-    const verificationLink = `${process.env.PUBLIC_URL}/verify-email/${token}`
-     const htmlContent = `
+    const verificationLink = `${process.env.PUBLIC_URL}/verify-email/${token}`;
+    const htmlContent = `
       <div style="font-family: Arial, sans-serif; line-height: 1.5;">
         <h2>Email Verification</h2>
         <p>Hi ${firstname},</p>
@@ -122,11 +120,11 @@ const register = async (req, res) => {
     `;
 
     await sendEmail({
-        to: email,
-        subject: "verify your email",
-        text:`Please verify your email by clicking the link below: ${verificationLink}`,
-        html: htmlContent,
-    })
+      to: email,
+      subject: "verify your email",
+      text: `Please verify your email by clicking the link below: ${verificationLink}`,
+      html: htmlContent,
+    });
 
     res.status(201).json({
       msg: "Registration complete",
@@ -139,35 +137,48 @@ const register = async (req, res) => {
   }
 };
 
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.params;
 
- const verifyEmail = async(req,res)=>{
-    try {
-        const {token} = req.params;
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // const user = await User.findByIdAndUpdate(decoded.userId,{isVerified:true}, {new:true});
-         const user = await userService.updateUserById(decoded.userId, { isVerified: true });
-        if(!user) {
-            return res.status(404).json({msg:"User not found"});
-        }
-        res.status(200).json({msg:"Email verified successfully", user});
-        
-    } catch (error) {
-        console.error("Error in verifyEmail:", error);
-        res.status(500).json({ msg: "Internal Server Error" });
-        
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // const user = await User.findByIdAndUpdate(decoded.userId,{isVerified:true}, {new:true});
+    const user = await userService.updateUserById(decoded.userId, {
+      isVerified: true,
+    });
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
     }
- }
+    res.status(200).json({ msg: "Email verified successfully", user });
+  } catch (error) {
+    console.error("Error in verifyEmail:", error);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
+};
 
 const login = async (req, res) => {
   try {
-    const { email, password,phone } = req.body;
+    const { email, password, phone } = req.body;
 
-    if ((!email?.trim() && !phone ) || !password) {
+    if ((!email?.trim() && !phone) || !password) {
       return res.status(400).json({ msg: "Please fill all the fields" });
     }
 
-    const user = await userService.findByEmailOrPhone(email,phone)
+    if (
+      email === process.env.ADMIN_EMAIL &&
+      password === process.env.ADMIN_PASSWORD
+    ) {
+      const token = generateToken("admin-static-id");
+
+      return res.status(200).json({
+        msg: "Admin login successful",
+        userId: "admin-static-id",
+        role: "admin",
+        token,
+      });
+    }
+
+    const user = await userService.findByEmailOrPhone(email, phone);
 
     if (!user) {
       return res.status(400).json({ msg: "User not found" });
@@ -194,7 +205,7 @@ const getAllUsers = async (req, res) => {
   try {
     // const users = await User.find({}, "-password -confirm_password"); // remove password
 
-    const users = await userService.getAllUsersExcludingPasswords()
+    const users = await userService.getAllUsersExcludingPasswords();
 
     if (!users || users.length === 0) {
       return res.status(404).json({ msg: "No users found" });
@@ -210,7 +221,7 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await userService.getUserByIdExcludingPasswords(id)
+    const user = await userService.getUserByIdExcludingPasswords(id);
 
     // const user = await User.findById(id, "-password -confirm_password"); // remove password fields
     if (!user) {
@@ -225,11 +236,14 @@ const getUserById = async (req, res) => {
 const mailSend = async (req, res) => {
   try {
     const { email } = req.body;
-    if (!email?.trim()) return res.status(400).json({ msg: "Please provide an email" });
+    if (!email?.trim())
+      return res.status(400).json({ msg: "Please provide an email" });
 
     const result = await userService.generateOtpAndSendEmail(email, sendEmail);
     if (!result.success) {
-      return res.status(500).json({ msg: "Failed to send email", error: result.error });
+      return res
+        .status(500)
+        .json({ msg: "Failed to send email", error: result.error });
     }
 
     res.status(200).json({ msg: "Email sent successfully" });
@@ -261,7 +275,9 @@ const resetPassword = async (req, res) => {
     const { email, newPassword, confirm_password } = req.body;
 
     if (!email?.trim() || !newPassword?.trim()) {
-      return res.status(400).json({ msg: "Please provide email and new password" });
+      return res
+        .status(400)
+        .json({ msg: "Please provide email and new password" });
     }
     if (newPassword !== confirm_password) {
       return res.status(400).json({ msg: "Passwords do not match" });
@@ -285,7 +301,9 @@ const updateUser = async (req, res) => {
     const result = await userService.updateUserDetails(id, updates);
     if (!result.success) return res.status(400).json({ msg: result.message });
 
-    res.status(200).json({ msg: "User updated successfully", user: result.user });
+    res
+      .status(200)
+      .json({ msg: "User updated successfully", user: result.user });
   } catch (error) {
     console.error("Error in updateUser:", error);
     res.status(500).json({ msg: "Internal Server Error" });
@@ -317,12 +335,17 @@ const contactUs = async (req, res) => {
     });
 
     if (!userMailResponse.success) {
-      return res.status(500).json({ msg: "Failed to send thank you email", error: userMailResponse.error });
+      return res
+        .status(500)
+        .json({
+          msg: "Failed to send thank you email",
+          error: userMailResponse.error,
+        });
     }
 
     const adminMailResponse = await sendEmail({
       from: process.env.EMAIL,
-      to: process.env.EMAIL, 
+      to: process.env.EMAIL,
       subject: `New Contact Form Submission - ${name}`,
       text: `New message received:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${message}`,
       html: `
@@ -335,11 +358,15 @@ const contactUs = async (req, res) => {
     });
 
     if (!adminMailResponse.success) {
-      return res.status(500).json({ msg: "Failed to send admin email", error: adminMailResponse.error });
+      return res
+        .status(500)
+        .json({
+          msg: "Failed to send admin email",
+          error: adminMailResponse.error,
+        });
     }
 
     res.status(200).json({ msg: "Contact message sent successfully" });
-
   } catch (error) {
     console.error("Error in contactUs:", error);
     res.status(500).json({ msg: "Internal Server Error" });
@@ -384,7 +411,7 @@ const verifyToken = (req, res) => {
           userId: decoded.userId,
           iat: decoded.iat,
           exp: decoded.exp,
-          issuedAt,  // human-readable format
+          issuedAt, // human-readable format
           expiresAt, // human-readable format
         },
       });
@@ -394,7 +421,6 @@ const verifyToken = (req, res) => {
     res.status(500).json({ msg: "Internal server error" });
   }
 };
-
 
 module.exports = {
   verifyToken,
@@ -408,5 +434,5 @@ module.exports = {
   getAllUsers,
   getUserById,
   updateUser,
-  verifyEmail
+  verifyEmail,
 };

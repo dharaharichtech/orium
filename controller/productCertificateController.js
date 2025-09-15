@@ -21,7 +21,7 @@ const updateProductCertificate = async (req, res) => {
     const certificate = await productService.updateProductCertificate(
       id,
       req.body,
-      req.file
+      req.files
     );
 
     res.status(200).json({

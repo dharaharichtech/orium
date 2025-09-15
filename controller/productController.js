@@ -54,6 +54,7 @@ const deleteProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
+     return res.status(200).json({ message: "Product deleted successfully", product });
   } catch (error) {
     console.error("Error in deleteProduct:", error);
     res.status(500).json({ msg: "Internal Server Error" });
@@ -62,9 +63,18 @@ const deleteProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
+
+    let data = req.body;
+    if (data.existingImages && typeof data.existingImages === "string") {
+      try {
+        data.existingImages = JSON.parse(data.existingImages);
+      } catch {
+        data.existingImages = [data.existingImages];
+      }
+    }
     const updatedProduct= await productService.updateProduct(
       req.params.id,
-      req.body,
+  data,
       req.files
     )
 
