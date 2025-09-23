@@ -144,6 +144,9 @@ const saveOrder = async (orderData) => {
 const getOrderById = async (id)=>{
   return await Order.findById(id).populate("product_id", "title price images");
 }
+const updateOrderByMongoId = async (id, updateData) => {
+  return await Order.findByIdAndUpdate(id, updateData, { new: true });
+};
 
 const getOrderByUser = async (user_id) => {
   return await Order.find({ user_id }).populate("product_id", "title price images");
@@ -156,6 +159,7 @@ const getAllOrders = async () => {
 };
 
 module.exports = {
+  updateOrderByMongoId,
   getLastProduct,
   getAllOrders,
   getOrderByUser,

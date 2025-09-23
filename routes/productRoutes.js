@@ -3,7 +3,7 @@ const router = express.Router();
 const upload = require("../utils/multer");
 const { createProduct, getAllProducts, getProductById, deleteProduct, updateProduct, addProductDetails, updateProductDetails, deleteProductDetails, toggleWishlist, getWishlist, } = require("../controller/productController");
 const { authenticate } = require("../utils/authValidation");
-const { addToCart, deleteProductCart, getProductCart, updateProductCart, checkout, getOrdersController, getOrderController, getAllOrdersController } = require("../controller/cartController");
+const { addToCart, deleteProductCart, getProductCart, updateProductCart, checkout, getOrdersController, getOrderController, getAllOrdersController, updateStatus } = require("../controller/cartController");
 const { addProductCertificate, updateProductCertificate, deleteProductCertificate, getAllProductCertificate, getProductCertificateById } = require("../controller/productCertificateController");
 
 router.post("/create", authenticate,upload.array("images", 5), createProduct);
@@ -49,6 +49,7 @@ router.get("/wishlist", authenticate, getWishlist);
 //order routes
 
 router.post("/checkout", authenticate, checkout);
+router.put("/order-status/:id", updateStatus);
 
 //user's order 
 router.get("/my-orders", authenticate, getOrdersController); 

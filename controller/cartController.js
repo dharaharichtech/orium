@@ -105,6 +105,28 @@ const checkout = async (req, res) => {
 };
 
 
+// update order status
+ const updateStatus = async (req,res)=>{
+  try {
+    const { id } = req.params;      
+    const { status } = req.body;   
+
+    const updatedOrder = await productService.updateOrderStatusById(id, status);
+
+    res.json({
+      success: true,
+      message: "Order status updated successfully",
+      data: updatedOrder,
+    });
+    
+  } catch (error) {
+     res.status(400).json({ success: false, message: error.message });
+    
+  }
+ }
+
+
+
 
 // user's orders
 const getOrdersController = async (req, res) => {
@@ -138,6 +160,7 @@ const getOrderController = async (req, res) => {
 
 
 module.exports = {
+  updateStatus,
   getAllOrdersController,
   getOrderController,
   getOrdersController,

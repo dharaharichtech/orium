@@ -469,6 +469,21 @@ const checkout = async (
   return order;
 };
 
+ const updateOrderStatusById = async (id, status) => {
+  if (!id) throw new Error("Order _id is required");
+  if (!status) throw new Error("Status is required");
+
+  const order = await productRepository.getOrderById(id);
+  if (!order) throw new Error("Order not found");
+
+  const updatedOrder = await productRepository.updateOrderByMongoId(id, {
+    status,
+    updatedAt: new Date(),
+  });
+
+  return updatedOrder;
+};
+
 const getUserOrders = async (user_id) => {
   return await productRepository.getOrderByUser(user_id);
 };
@@ -488,6 +503,7 @@ const getAllOrders = async () => {
 };
 
 module.exports = {
+  updateOrderStatusById,
   getAllOrders,
   getUserOrders,
   getOrder,
