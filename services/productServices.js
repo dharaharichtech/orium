@@ -177,17 +177,31 @@ const deleteProductDetails = async (id) => {
 const addProductCertificate = async (data, files) => {
   const { product_id, certificate_title, sdg_title } = data;
 
-  if (!product_id || !certificate_title || !sdg_title) {
+  if (!product_id || !certificate_title) {
     throw new Error("All fields are required");
   }
 
   const productExists = await productRepository.getProductById(product_id);
   if (!productExists) throw new Error("Product not found");
 
-  const titleExists = await productRepository.getCertificateByTitle(
+
+
+  if (!files || !files.certificate_img) {
+    throw new Error("Certificate and SDG images are required");
+  }
+
+
+  //if sdgy title is available , check img validation
+  if (sdg_title) {
+    if (!files.sdg_img) {
+      throw new Error("SDG image is required when SDG title is provided");
+    }
+  }
+
+    const titleExists = await productRepository.getCertificateByTitle(
     product_id,
     certificate_title,
-    sdg_title
+  sdg_title || null
   );
   if (titleExists) {
     throw new Error(
@@ -195,20 +209,31 @@ const addProductCertificate = async (data, files) => {
     );
   }
 
-  if (!files || !files.certificate_img || !files.sdg_img) {
-    throw new Error("Certificate and SDG images are required");
-  }
 
   const certificatePath = `${api_url}/uploads/${files.certificate_img[0].filename}`;
-  const sdgPath = `${api_url}/uploads/${files.sdg_img[0].filename}`;
-
-  return await productRepository.saveProductCertificate({
+  const certificateData = {
     product_id,
     certificate_img: certificatePath,
     certificate_title,
-    sdg_title,
-    sdg_img: sdgPath,
-  });
+  };
+   if (sdg_title) {
+    certificateData.sdg_title = sdg_title;
+    certificateData.sdg_img = `${api_url}/uploads/${files.sdg_img[0].filename}`;
+  }
+
+  // const sdgPath = `${api_url}/uploads/${files.sdg_img[0].filename}`;
+
+  // return await productRepository.saveProductCertificate({
+  //   product_id,
+  //   certificate_img: certificatePath,
+  //   certificate_title,
+  //   sdg_title,
+  //   sdg_img: sdgPath,
+  // });
+
+
+  return await productRepository.saveProductCertificate(certificateData);
+
 };
 
 const updateProductCertificate = async (id, data, files) => {
