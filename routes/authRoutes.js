@@ -63,7 +63,7 @@ router.get(
   (req, res) => {
     const jwt = require("jsonwebtoken");
     const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET, { expiresIn: "9h" });
-    res.redirect(`${process.env.PUBLIC_URL}/auth-success?token=${token}`);
+    res.redirect(`${process.env.PUBLIC_Live_URL}/auth-success?token=${token}`);
   }
 );
 
@@ -84,7 +84,7 @@ router.get(
       expiresIn: "9h",
     });
 
-    res.redirect(`${process.env.PUBLIC_URL}/auth-success?token=${token}`);
+    res.redirect(`${process.env.PUBLIC_Live_URL}/auth-success?token=${token}`);
   }
 );
 

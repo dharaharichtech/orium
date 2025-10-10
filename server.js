@@ -5,16 +5,29 @@ const blogRouter = require("./routes/blogRoutes");
 const productRouter = require("./routes/productRoutes");
 const reviewRouter = require("./routes/reviewsRoutes")
 const app = express();
-const PORT = process.env.PORT || 5000;
 const passport = require("passport"); 
 const session = require("express-session");
 const path = require('path');
 const cors = require('cors');
+connectDB();
 
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+  origin: [
+    "https://demo.harichtech.com",
+    "http://demo.harichtech.com",
+    "http://localhost:3000",
+    "http://localhost:5000",
+
+  ],
+  methods: ["GET", "POST", "PUT","PATCH", "DELETE"],
+  credentials: true
+}));
+
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); 
 
 app.use(
@@ -25,12 +38,13 @@ app.use(
   })
 );
 
+
+
 app.use(passport.initialize());
 app.use(passport.session());
 
 require("./utils/passport")(passport);
 
-connectDB();
 
 
 app.get('/', (req, res) => {
@@ -44,6 +58,8 @@ app.use("/api/review", reviewRouter);
 
 
 
+const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

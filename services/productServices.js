@@ -4,6 +4,8 @@ const ProductCertificate = require("../model/productCertificateSchema");
 const api_url = process.env.API_URL;
 const crypto = require("crypto");
 
+const cleanPath = (path) => path.replace(/^https?:\/\/[^/]+/, "");
+
 const createProduct = async (data, files) => {
   //   return await productRepository.saveProduct(userData);
   const { title, price, description, stock } = data;
@@ -19,7 +21,7 @@ const createProduct = async (data, files) => {
 
   const images = files.map((file) => ({
     filename: file.filename,
-    url: `${api_url}/uploads/${file.filename}`,
+    url: cleanPath(`/uploads/${file.filename}`),
   }));
 
   const lastProduct = await productRepository.getLastProduct();
@@ -51,10 +53,15 @@ const getAllProducts = async () => {
         product_id: product._id,
       });
 
-      const updatedImages = product.images.map((img) => ({
-        ...img.toObject(),
-        url: img.url || `${api_url}/uploads/${img.filename}`,
-      }));
+    const updatedImages = product.images.map((img) => {
+        const urlPath = img.url.includes("/uploads/")
+          ? img.url.substring(img.url.indexOf("/uploads/"))
+          : img.url;
+        return {
+          ...img.toObject(),
+          url: urlPath, 
+        };
+      });
 
       return {
         ...product.toObject(),
@@ -82,7 +89,7 @@ const getProductById = async (id) => {
 
   const updatedImages = product.images.map((img) => ({
     ...img.toObject(),
-    url: img.url || `${api_url}/uploads/${img.filename}`,
+    url: img.url.startsWith("http") ? img.url : `${api_url}${img.url}`,
   }));
 
   return {
@@ -103,16 +110,14 @@ const updateProduct = async (id, data, files) => {
   let finalImages = [];
   if (data.existingImages) {
     finalImages = Array.isArray(data.existingImages)
-      ? data.existingImages.map((url) => ({ url }))
-      : [{ url: data.existingImages }];
+      ? data.existingImages.map((url) => ({ url: cleanPath(url) }))
+      : [{ url: cleanPath(data.existingImages) }];
   }
 
   if (files && files.length > 0) {
     const newImgs = files.map((file) => ({
       filename: file.filename,
-      url: `${process.env.API_URL || "http://localhost:5000"}/uploads/${
-        file.filename
-      }`,
+      url: cleanPath(`/uploads/${file.filename}`),
     }));
     finalImages = [...finalImages, ...newImgs];
   }
@@ -184,12 +189,9 @@ const addProductCertificate = async (data, files) => {
   const productExists = await productRepository.getProductById(product_id);
   if (!productExists) throw new Error("Product not found");
 
-
-
   if (!files || !files.certificate_img) {
     throw new Error("Certificate and SDG images are required");
   }
-
 
   //if sdgy title is available , check img validation
   if (sdg_title) {
@@ -198,10 +200,10 @@ const addProductCertificate = async (data, files) => {
     }
   }
 
-    const titleExists = await productRepository.getCertificateByTitle(
+  const titleExists = await productRepository.getCertificateByTitle(
     product_id,
     certificate_title,
-  sdg_title || null
+    sdg_title || null
   );
   if (titleExists) {
     throw new Error(
@@ -209,17 +211,21 @@ const addProductCertificate = async (data, files) => {
     );
   }
 
-
-  const certificatePath = `${api_url}/uploads/${files.certificate_img[0].filename}`;
+  // const certificatePath = `${api_url}/uploads/${files.certificate_img[0].filename}`;
   const certificateData = {
     product_id,
-    certificate_img: certificatePath,
     certificate_title,
+    certificate_img: cleanPath(`/uploads/${files.certificate_img[0].filename}`),
   };
-   if (sdg_title) {
+
+
+  if (sdg_title) {
+    if (!files.sdg_img)
+      throw new Error("SDG image is required when SDG title is provided");
     certificateData.sdg_title = sdg_title;
-    certificateData.sdg_img = `${api_url}/uploads/${files.sdg_img[0].filename}`;
+    certificateData.sdg_img = cleanPath(`/uploads/${files.sdg_img[0].filename}`);
   }
+
 
   // const sdgPath = `${api_url}/uploads/${files.sdg_img[0].filename}`;
 
@@ -231,9 +237,7 @@ const addProductCertificate = async (data, files) => {
   //   sdg_img: sdgPath,
   // });
 
-
   return await productRepository.saveProductCertificate(certificateData);
-
 };
 
 const updateProductCertificate = async (id, data, files) => {
@@ -251,13 +255,16 @@ const updateProductCertificate = async (id, data, files) => {
 
    if (files) {
     if (files.certificate_img && files.certificate_img[0]) {
-      certificate.certificate_img = `${api_url}/uploads/${files.certificate_img[0].filename}`;
+      certificate.certificate_img = cleanPath(
+        `/uploads/${files.certificate_img[0].filename}`
+      );
     }
     if (files.sdg_img && files.sdg_img[0]) {
-      certificate.sdg_img = `${api_url}/uploads/${files.sdg_img[0].filename}`;
+      certificate.sdg_img = cleanPath(`/uploads/${files.sdg_img[0].filename}`);
     }
     await certificate.save();
   }
+  
 
   return certificate;
 };
@@ -494,7 +501,7 @@ const checkout = async (
   return order;
 };
 
- const updateOrderStatusById = async (id, status) => {
+const updateOrderStatusById = async (id, status) => {
   if (!id) throw new Error("Order _id is required");
   if (!status) throw new Error("Status is required");
 

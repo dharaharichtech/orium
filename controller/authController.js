@@ -104,7 +104,7 @@ const register = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    const verificationLink = `${process.env.PUBLIC_URL}/verify-email/${token}`;
+    const verificationLink = `${process.env.PUBLIC_Live_URL}/verify-email/${token}`;
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; line-height: 1.5;">
         <h2>Email Verification</h2>
